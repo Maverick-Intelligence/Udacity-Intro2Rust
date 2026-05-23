@@ -19,5 +19,12 @@ fn largest_char(list: &[char]) -> char {
 }
 
 fn main() {
-    println!("Hello, world!");
+    let list_i32 = [1234, 2345, 3456, 4567, 5678];
+    let list_char = ['a', 'b', 'c', 'd', 'e'];
+
+    let largest_i32 = largest_i32(&list_i32);
+    let largest_char = largest_char(&list_char);
+
+    println!("The largest i32 in 'list_32' is {}", largest_i32);
+    println!("The largest cahr in 'list_char' is {}", largest_char);
 }
