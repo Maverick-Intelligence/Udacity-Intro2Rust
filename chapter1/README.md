@@ -1,20 +1,154 @@
-# Chapter 1 — Understanding Ownership, Borrowing, and Lifetimes in Rust
+# Chapter 1 — Ownership, Borrowing, and Lifetimes in Rust
 
-## Overview
+---
 
-This chapter walks through the fundamental memory management concepts of Rust: **Ownership**, **Borrowing**, and **Lifetimes**. The example program defines a simple `Book` struct and demonstrates how Rust ensures memory safety at compile time without a garbage collector.
+## Part 1: Struct Definition
+
+The `Book` struct holds a book's title (owned) and author (borrowed).
+
+From [`src/main.rs`](file:///home/nvision/Workspace/Code/Source/Pri/Courses/Udacity/Intro2Rust/chapter1/src/main.rs):
 
 ```rust
 struct Book<'author> {
     title: String,
     author: &'author str,
 }
+```
 
+| Field | Type | Ownership | Lives where? |
+|---|---|---|
+| `title` | `String` | **Owned** — lives on the heap, freed when `Book` is dropped | Heap memory |
+| `author` | `&'author str` | **Borrowed** — points to data owned elsewhere (the binary) | Program's static memory |
+
+### Why `&'author str` and not `String`?
+
+`author` borrows a string slice (`&str`). This is **cheaper** than `String` — no heap allocation, no copy. It just points to existing data. The `'author` part (see Part 4) is the lifetime annotation that tells Rust how long this reference is valid.
+
+---
+
+## Part 2: Ownership
+
+**Ownership** means every piece of data has exactly **one owner**. When the owner drops, the data is freed.
+
+### Owned: `String`
+
+```rust
+let title: String = String::from("Artificial Intelligence A Modern Approach");
+```
+
+- `String::from()` **allocates** the text on the heap.
+- `title` is the **sole owner** of this data.
+- When `title` goes out of scope, the heap memory is **automatically freed**.
+
+### Borrowed: `&str`
+
+```rust
+let author: &str = "Stuart Russel & Peter Norvig";
+```
+
+- The string literal is stored in the **program binary** — no heap allocation.
+- `author` is a **pointer** to that static data. It does not own it.
+- Its lifetime is `'static` — it lives for the entire program.
+
+### Moving `title` into `Book`
+
+```rust
+let book: Book = Book { title, author };
+```
+
+| Field | What happens |
+|---|---|
+| `title` | **Moved** into `book.title`. After this line, `title` is **no longer valid** — ownership transferred. |
+| `author` | **Copied** (just a pointer copy, not the string data) into `book.author`. The underlying static data stays untouched. |
+
+---
+
+## Part 3: Borrowing
+
+**Borrowing** lets a function read data without taking ownership.
+
+From [`src/main.rs`](file:///home/nvision/Workspace/Code/Source/Pri/Courses/Udacity/Intro2Rust/chapter1/src/main.rs):
+
+```rust
 fn print_book_details(book: &Book) {
     println!("Book Name: {}", book.title);
     println!("Author Name: {}", book.author);
 }
+```
 
+- `&Book` is an **immutable borrow** — the function can read `book` but not modify it.
+- `print_book_details` **does not own** `book`. It cannot free its memory.
+- The caller (`main`) keeps ownership and responsibility for cleanup.
+
+```rust
+print_book_details(&book);
+```
+
+- `&book` creates a reference (pointer) to the existing `Book`.
+- The function reads `book.title` and `book.author` through this pointer.
+- `book` remains valid in `main` after the call — borrowing doesn't consume it.
+
+### Borrowing vs. Ownership Transfer
+
+| Scenario | Syntax | Caller keeps ownership? | Can mutate? |
+|---|---|---|---|
+| Immutable borrow | `&Book` | ✅ Yes | ❌ No |
+| Mutable borrow | `&mut Book` | ✅ Yes | ✅ Yes |
+| Ownership transfer | `Book` (by value) | ❌ No | ✅ Yes (while owned) |
+
+---
+
+## Part 4: Lifetimes
+
+**Lifetimes** are compile-time annotations that ensure borrowed references never outlive the data they point to.
+
+### The Lifetime Parameter
+
+```rust
+struct Book<'author> {
+    author: &'author str,
+}
+```
+
+- `<'author>` declares a **generic lifetime parameter** — like a placeholder for "some duration I don't know yet."
+- `&'author str` means: "this borrowed string must be valid for at least `'author`."
+- The actual lifetime is filled in by the compiler at construction time.
+
+### Why It Matters
+
+Without `'author`, the compiler cannot verify that `author` is valid for the lifetime of `book`. The parameter ties the **borrowed reference's validity** to the struct.
+
+### Inference in Practice
+
+```rust
+let author: &str = "Stuart Russel & Peter Norvig";  // &str = &'static str
+let book: Book = Book { title, author };
+```
+
+- `author` has type `&'static str` — it lives in the binary forever.
+- The compiler **infers** `'author = 'static`. No manual annotation needed.
+
+### In Function Signatures
+
+```rust
+fn print_book_details(book: &Book) {
+```
+
+Rust applies **lifetime elision** rules. The compiler expands this to:
+
+```rust
+fn print_book_details<'a>(book: &'a Book<'a>)
+```
+
+The borrow of `book` must live at least as long as any borrowed data inside it. Since `book.author` is `'static`, this is trivially satisfied.
+
+---
+
+## Part 5: Main Function — All Concepts Together
+
+[`main.rs`](file:///home/nvision/Workspace/Code/Source/Pri/Courses/Udacity/Intro2Rust/chapter1/src/main.rs) ties everything together:
+
+```rust
 fn main() {
     let title: String = String::from("Artificial Intelligence A Modern Approach");
     let author: &str = "Stuart Russel & Peter Norvig";
@@ -23,251 +157,46 @@ fn main() {
 }
 ```
 
----
-
-## 1. Ownership in Rust
-
-### The Core Rules
-
-Rust enforces three ownership rules at compile time:
-
-1. **Every value has exactly one owner** — a variable that is responsible for the value's memory.
-2. **There can only be one owner at a time** — ownership can be transferred (moved) but never duplicated.
-3. **When the owner goes out of scope, the value is dropped** — memory is freed automatically.
-
-### Applied to the Code
-
-#### Line-by-Line Ownership Analysis
-
-**Line 12 — Creating an Owned `String`:**
-
-```rust
-let title: String = String::from("Artificial Intelligence A Modern Approach");
-```
-
-- `String::from()` allocates the string data on the **heap**.
-- `title` is the **sole owner** of this heap-allocated data.
-- The data lives as long as `title` is in scope.
-
-**Line 13 — Creating a Borrowed `&str`:**
-
-```rust
-let author: &str = "Stuart Russel & Peter Norvig";
-```
-
-- The string literal `"Stuart Russel & Peter Norvig"` is stored in the program's **binary** (static memory).
-- `author` is a **borrowed reference** (`&str`) to that static data.
-- `author` itself does **not** own the underlying string data; it merely points to it.
-- The literal has a `'static` lifetime — it lives for the entire duration of the program.
-
-**Line 14 — Building the `Book` Struct:**
-
-```rust
-let book: Book = Book { title, author };
-```
-
-- `title` is **moved** into the `Book` struct. After this line, `title` is **no longer valid** — its ownership has been transferred.
-- `author` is **copied** (a shallow copy of the pointer) into the `Book` struct because `&str` implements the `Copy` trait. The underlying static data remains untouched.
-
-**Line 16 — Scope Exit and Cleanup:**
-
-- When `main()` ends, `book` goes out of scope.
-- Rust **automatically drops** `book`, which in turn drops its fields.
-- `title`'s `String` data is **freed from the heap**.
-- `author`'s reference is dropped, but it points to static data that was never ours to free.
-
----
-
-## 2. Borrowing in Rust
-
-### The Core Rules
-
-Borrowing allows a function to **access data without taking ownership**:
-
-1. **You can have either one mutable reference or any number of immutable references** at a time.
-2. **References must always be valid** — no dangling pointers.
-3. **The borrower does not free the data** — ownership remains with the owner.
-
-### Applied to the Code
-
-**Line 6 — Function Signature with a Borrowed Reference:**
-
-```rust
-fn print_book_details(book: &Book) {
-```
-
-- `&Book` is an **immutable borrow** of a `Book` instance.
-- `print_book_details` **does not own** `book`; it only reads from it.
-- The caller retains ownership and is responsible for freeing the data.
-
-**Line 15 — Passing a Reference:**
-
-```rust
-print_book_details(&book);
-```
-
-- `&book` creates an **immutable reference** to the `book` variable.
-- This allows the function to read `book.title` and `book.author` without taking ownership.
-- Multiple functions could simultaneously borrow `&book` immutably — this is safe and guaranteed by the compiler.
-
-### Why Borrowing Matters
-
-| Approach | Ownership Transfer | Memory Safety | Concurrent Access |
-|---|---|---|---|
-| `Book` (by value) | Caller loses ownership | Safe at compile time | Not possible (single owner) |
-| `&Book` (borrowed) | Caller retains ownership | Safe at compile time | Multiple immutable borrows allowed |
-
-By using borrowing, the code avoids unnecessary heap allocations and allows shared read-only access.
-
----
-
-## 3. Lifetimes in Rust
-
-### The Core Problem
-
-When a struct contains references, Rust must know **how long those references remain valid**. The compiler uses **lifetime annotations** to verify that references do not outlive the data they point to.
-
-### Lifetime Syntax
+### Step-by-Step Flow
 
 ```
-'identifier
-```
+Line 9  ── title: String ──→ Heap data (owned by title)
+              │
+              ├─ moved into book.title ──→ owned by book
+              │
+              └─ freed when book drops
 
-- Lifetime parameters are generic and **monomorphized** at compile time.
-- `'static` is a special lifetime meaning the data lives for the entire program.
+Line 10 ── author: &'static str ──→ Binary data (not owned, always valid)
+              │
+              ├─ copied into book.author ──→ referenced by book
+              │
+              └─ remains valid for the program
 
-### Applied to the Code
-
-**Line 1 — Lifetime Parameter on the Struct:**
-
-```rust
-struct Book<'author> {
-    title: String,
-    author: &'author str,
-}
-```
-
-- `<'author>` declares a **lifetime parameter** called `'author`.
-- `&'author str` says: "the `author` field is a borrowed string slice that must live for at least `'author`."
-- The lifetime `'author` is a **generic constraint** — the actual lifetime is determined when `Book` is constructed.
-
-**Why Is This Necessary?**
-
-Without `'author`, the compiler cannot verify that `author` is valid for the lifetime of `book`. The lifetime parameter ties the **borrowed reference's validity** to the struct's lifetime.
-
-**Line 14 — Lifetime Elision in Practice:**
-
-```rust
-let book: Book = Book { title, author };
-```
-
-- `author` has type `&'static str` (string literals have `'static` lifetime).
-- The compiler **infers** that `'author` = `'static`, so `book.author` is valid for the entire program.
-- No explicit lifetime annotation is needed because the compiler can deduce it.
-
-**Line 6 — Lifetime Elision in Function Signatures:**
-
-```rust
-fn print_book_details(book: &Book) {
-```
-
-- Rust applies **lifetime elision rules** here.
-- Since `&Book` contains a reference with its own lifetime (`'author`), the function signature is effectively:
-  ```rust
-  fn print_book_details<'a>(book: &'a Book<'a>)
-  ```
-- The compiler ensures that the borrow of `book` lives at least as long as any borrowed data inside `book`.
-
----
-
-## 4. How the Three Concepts Work Together
-
-### The Borrowing Chain
-
-```
-main()
-  │
-  ├─ title: String ────────→ Heap-allocated data (owned by title)
-  │                           │
-  │                           ├─ moved into book.title ──→ owned by book
-  │                           │
-  │                           └─ freed when book drops
-  │
-  ├─ author: &'static str ─→ Static binary data (not owned)
-  │                           │
-  │                           ├─ copied into book.author ─→ referenced by book
-  │                           │
-  │                           └─ remains valid for the program
-  │
-  └─ &book ─────────────────→ Immutable borrow of book
-                               │
-                               ├─ print_book_details reads book.title & book.author
-                               │
-                               └─ book still owned by main()
+Line 13 ── &book ──→ Immutable borrow
+              │
+              └─ print_book_details reads book.title & book.author
+                   book still owned by main()
 ```
 
 ### Compile-Time Guarantees
 
-Rust's compiler verifies the following **before the code even runs**:
-
-1. **`title` is moved into `book`** → No double-free possible.
-2. **`author` points to `'static` data** → No dangling reference possible.
-3. **`&book` borrows `book` immutably** → No data races possible.
-4. **`book` outlives `print_book_details`** → No use-after-free possible.
-
-These guarantees are enforced **without any runtime overhead** — the analysis happens entirely at compile time.
-
----
-
-## 5. Key Takeaways
-
-| Concept | What It Solves | How It Works in This Code |
+| Guarantee | Enforced By | Result |
 |---|---|---|
-| **Ownership** | Prevents memory leaks and double-frees | `title` is owned by `book`; freed when `book` drops |
-| **Borrowing** | Allows shared access without ownership transfer | `&book` lets `print_book_details` read without owning |
-| **Lifetimes** | Prevents dangling references | `'author` ties `author`'s validity to `book`'s lifetime |
+| `title` is moved, not copied | Ownership rules | No double-free |
+| `author` points to `'static` data | Lifetime elision | No dangling reference |
+| `&book` borrow is valid during function call | Lifetime of `&Book` | No use-after-free |
+| `book` outlives `&book` | Borrow checker | Reference is always valid |
 
-### Why This Matters
+### Module Organization
 
-Rust gives you **C/C++-level control** over memory with **garbage-collection-level safety**. The trade-off is that you must think about ownership and lifetimes upfront — but the compiler helps you get it right.
+| Module | Path | What It Demonstrates |
+|---|---|---|
+| `main` | [`src/main.rs`](file:///home/nvision/Workspace/Code/Source/Pri/Courses/Udacity/Intro2Rust/chapter1/src/main.rs) | Ownership + Borrowing + Lifetimes in one file |
 
----
+### Final Summary
 
-## 6. Experimenting with the Code
-
-Try these modifications to see how the compiler responds:
-
-```rust
-// Experiment 1: What happens if we try to use `title` after moving it?
-let book: Book = Book { title, author };
-println!("{}", title); // ❌ Compile error: 'title' was moved
-```
-
-```rust
-// Experiment 2: What if `author` pointed to a local variable?
-let author_local = String::from("John Doe");
-let author_ref: &str = &author_local;
-let book: Book = Book { title, author: author_ref };
-// ❌ Compile error: 'author_local' does not live long enough
-```
-
-```rust
-// Experiment 3: Multiple immutable borrows — this is allowed!
-let book1 = &book;
-let book2 = &book;
-println!("{}", book1.title);
-println!("{}", book2.author); // ✅ Safe — both borrows coexist
-```
-
----
-
-## 7. Summary
-
-This chapter demonstrates how Rust's three pillars of memory management work together:
-
-1. **Ownership** ensures every piece of data has a single owner.
-2. **Borrowing** enables shared, read-only access without ownership transfer.
-3. **Lifetimes** guarantee that references are always valid.
-
-Together, they form a powerful system that prevents entire classes of bugs — null pointer dereferences, use-after-free, data races — **at compile time**.
-``````
+| Concept | What It Solves | In One Line |
+|---|---|---|
+| **Ownership** | Who is responsible for freeing memory? | One owner per value |
+| **Borrowing** | How do I read data without taking it? | `&T` = read-only reference |
+| **Lifetimes** | How do I prevent dangling references? | `'a` = compile-time validity guarantee |
