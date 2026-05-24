@@ -39,6 +39,7 @@ pub fn calculator(
     div_nz_b: i32,
     div_wz_a: i32,
 ) {
+    println!("CHAPTER 2 PROJECT: CALCULATOR");
     let addition = calculate(Operation::Add, add_a, add_b);
     let subtraction = calculate(Operation::Subtract, sub_a, sub_b);
     let multiplication = calculate(Operation::Multiply, mul_a, mul_b);
