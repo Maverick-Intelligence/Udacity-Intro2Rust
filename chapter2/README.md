@@ -1,46 +1,44 @@
-# Understanding Generics, Trait, Error Handling in Rust
+# Chapter 2 — Generics, Traits, Error Handling, and a Calculator Project
+
+Rust gives you three powerful tools for writing safe, reusable code:
+
+| Concept | One-line meaning |
+|---|---|
+| **Generics** | One function/struct that works for many types. |
+| **Traits** | A shared contract that multiple types can agree to follow. |
+| **Error Handling** | Errors are values (`Result<T, E>`), not crashes. |
+
+The code lives in four modules, run them all with `cargo run`:
+
+| Chapter | Module | Topic |
+|---|---|---|
+| 2.1 | [`src/generics.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/src/generics.rs) | Generics |
+| 2.2 | [`src/traits.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/src/traits.rs) | Traits |
+| 2.3 | [`src/error_handling.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/src/error_handling.rs) | Error Handling |
+| 2.4 | [`src/project.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/src/project.rs) | Calculator Project (all three combined) |
 
 ---
 
-## Part 1: Generics
+## 2.1 Generics
 
-**Generics** let you write **one function that works for many types**, instead of writing the same logic over and over for each type.
+**Generics** let you write **one function that works for many types** instead of duplicating the same logic for each type.
 
-### The Problem Without Generics
+### 2.1.1 Type-Specific (the problem)
 
-In [`generics.rs`](file:///home/nvision/Workspace/Code/Source/Pri/Courses/Udacity/Intro2Rust/chapter2/src/generics.rs), the first two functions are **identical in logic** but duplicated for each type:
+Without generics you write the same algorithm twice — once per type:
 
 ```rust
-// generics.rs — BEFORE generics
-
-pub fn largest_i32(list: &[i32]) -> i32 {
-    let mut largest = list[0];
-    for i in 0..list.len() {
-        if list[i] > largest {
-            largest = list[i];
-        }
-    }
-    largest
-}
-
-pub fn largest_char(list: &[char]) -> char {
-    let mut largest = list[0];
-    for i in 0..list.len() {
-        if list[i] > largest {
-            largest = list[i];
-        }
-    }
-    largest
-}
+pub fn largest_i32(list: &[i32]) -> i32 { /* find max */ }
+pub fn largest_char(list: &[char]) -> char { /* find max */ }
 ```
 
-Both find the biggest item. The **only** difference is `i32` vs `char`. Writing the same code twice is wasteful.
+Both functions are identical except for the type. Duplication scales badly.
 
-### The Solution: `<T>`
+### 2.1.2 Generic (the fix)
+
+`<T>` says *"any type"*; the trait bound `: PartialOrd` says *"…that supports `>`"*:
 
 ```rust
-// generics.rs — AFTER generics
-
 pub fn largest<T: std::cmp::PartialOrd>(list: &[T]) -> &T {
     let mut largest = &list[0];
     for i in 0..list.len() {
@@ -55,245 +53,216 @@ pub fn largest<T: std::cmp::PartialOrd>(list: &[T]) -> &T {
 | Part | Meaning |
 |---|---|
 | `<T>` | "Any type — I don't care what it is." |
-| `: std::cmp::PartialOrd` | "But it **must** support the `>` comparison operator." |
-| `list: &[T]` | "Give me a list of that type." |
-| `-> &T` | "I'll give back a reference to the biggest one." |
+| `: PartialOrd` | "But it must support `>` comparison." |
+| `list: &[T]` | "A slice of that type." |
+| `-> &T` | "I return a reference to the biggest one." |
 
-### Why `<T: PartialOrd>` Matters
+| Type | Implements `PartialOrd`? | Works with `largest`? |
+|---|---|---|
+| `i32` | Yes | Yes |
+| `char` | Yes | Yes |
+| `f32` | Yes | Yes |
+| `String` | No | Compile-time error |
 
-Not everything can be compared. `T` must implement `PartialOrd` — otherwise `list[i] > *largest` makes no sense. This is a **compile-time filter**:
-
-- ✅ `i32` implements `PartialOrd` → works
-- ✅ `char` implements `PartialOrd` → works
-- ✅ `f32` implements `PartialOrd` → works
-- ❌ `String` does not implement `PartialOrd` → **compiler error**
+[`execute_generics_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/src/generics.rs)
 
 ---
 
-## Part 2: Trait
+## 2.2 Traits
 
-**Traits** define a **shared contract** — a set of rules that multiple types can agree to follow. Think of it like a recipe card on the wall: every type reads it and decides how to follow it.
+**Traits** define a **shared contract** — a set of methods that multiple types can agree to implement. Think of it as a recipe card on the wall: every type reads it and decides how to follow it.
 
-### Trait 1: No Default Implementation (`Animal`)
+### 2.2.1 Trait Without Default (`Animal`)
 
-From [`traits.rs`](file:///home/nvision/Workspace/Code/Source/Pri/Courses/Udacity/Intro2Rust/chapter2/src/traits.rs):
+The trait declares the method signature only; every type **must** provide its own body.
 
 ```rust
 pub(crate) trait Animal {
-    fn says(&self) -> String;  // ← No body. Each type MUST write its own.
+    fn says(&self) -> String;   // no body
 }
 
-pub struct Dog { pub says: String }
-pub struct Cat { pub says: String }
-
-impl Animal for Dog {
-    fn says(&self) -> String { self.says.clone() }
-}
-
-impl Animal for Cat {
-    fn says(&self) -> String { self.says.clone() }
-}
+impl Animal for Dog { fn says(&self) -> String { self.says.clone() } }
+impl Animal for Cat { fn says(&self) -> String { self.says.clone() } }
 ```
 
-| Type | Writes its own `says()`? | Result |
+| Type | Writes its own `says()`? | Output |
 |---|---|---|
-| `Dog` | ✅ Yes | Returns `"Woof"` |
-| `Cat` | ✅ Yes | Returns `"Meow"` |
+| `Dog` | Yes | `"Woof"` |
+| `Cat` | Yes | `"Meow"` |
 
-Both types share the **same interface** but provide **different behavior**.
+Same interface, different behaviour.
 
-### Trait 2: With Default Implementation (`GreetingDefault`)
+### 2.2.2 Trait With Default (`GreetingDefault`)
+
+The trait provides a default body; types may **use** it or **override** it.
 
 ```rust
 pub(crate) trait GreetingDefault {
     fn speak(&self) -> String {
-        "Hello everyone!".to_string()  // ← Default. You can skip this.
+        "Hello everyone!".to_string()      // default
     }
 }
 
-pub struct GreetingEnglish { pub speak: String }
-pub struct GreetingGerman { pub speak: String }
-
-impl GreetingDefault for GreetingEnglish {}  // ← Uses the default!
+impl GreetingDefault for GreetingEnglish {}              // uses default
 
 impl GreetingDefault for GreetingGerman {
-    fn speak(&self) -> String {
-        self.speak.clone()  // ← Overrides the default.
-    }
+    fn speak(&self) -> String { self.speak.clone() }     // overrides
 }
 ```
 
 | Type | Uses default? | `speak()` returns |
 |---|---|---|
-| `GreetingEnglish` | ❌ No default used | `"Hello everyone!"` (from the trait) |
-| `GreetingGerman` | ✅ Overrides | `"Moin!"` (its own value) |
+| `GreetingEnglish` | Yes | `"Hello everyone!"` (from the trait) |
+| `GreetingGerman` | No (overrides) | `"Moin!"` (its own value) |
+
+[`execute_trait_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/src/traits.rs)
 
 ---
 
-## Part 3: Error Handling
+## 2.3 Error Handling
 
-In Rust, errors are **values** — not crashes. You decide how to handle them using `Result<T, E>`.
+In Rust, errors are **values** carried in `Result<T, E>` or `Option<T>` — not exceptions, not crashes. You decide how to handle them.
 
-### The Five Tools
+| Tool | What it does | When to use |
+|---|---|---|
+| `unwrap()` | Returns the inner value or **panics** | Only when failure is impossible |
+| `expect("msg")` | `unwrap()` plus a custom panic message | Same as `unwrap` but with context |
+| `Result<T, E>` + `match` | Force the caller to handle both outcomes | Most cases |
+| `?` operator | Returns the `Err` early, otherwise unwraps the `Ok` | Inside `Result`-returning functions |
 
-From [`error_handling.rs`](file:///home/nvision/Workspace/Code/Source/Pri/Courses/Udacity/Intro2Rust/chapter2/src/error_handling.rs):
-
-#### 1. `unwrap()` — "Trust me, this won't fail."
+### 2.3.1 `unwrap()`
 
 ```rust
 let some_option = Some(42);
-let value = some_option.unwrap();  // 42
-
-// If it was None → program PANICS (crashes).
+let value = some_option.unwrap();   // 42
+// If it were None, the program would PANIC.
 ```
 
-**Use only when you are 100% sure it won't fail.**
-
-#### 2. `expect(msg)` — "Trust me, but yell if I'm wrong."
+### 2.3.2 `expect(msg)`
 
 ```rust
-let value = some_option.expect("Expected Some, got None!");
-// Same as unwrap() + a custom panic message.
+let value = some_option.expect("Some option is None");
 ```
 
-#### 3. `Result<T, E>` — "The box that holds two possibilities"
+Same behaviour as `unwrap`, but the panic message helps you locate the bug.
+
+### 2.3.3 Recoverable Error with `match`
 
 ```rust
 pub fn divide(a: i32, b: i32) -> Result<i32, String> {
-    if b == 0 {
-        Err(String::from("Division by zero is not allowed"))
-    } else {
-        Ok(a / b)
-    }
+    if b == 0 { Err(String::from("Division by zero is not allowed")) } else { Ok(a / b) }
+}
+
+match divide(10, 0) {
+    Ok(value)  => println!("Result: {}", value),
+    Err(error) => println!("Error: {}", error),
 }
 ```
 
 | Return | Inside the box | Meaning |
 |---|---|---|
-| `Ok(42)` | The answer | Everything worked ✅ |
-| `Err("...")` | The error message | Something went wrong ❌ |
+| `Ok(42)` | The answer | Success |
+| `Err("...")` | The error message | Failure |
 
-#### 4. `match` — "Handle both outcomes"
+### 2.3.4 Try Operator (`?`)
 
-```rust
-let result = divide(10, 0);
-match result {
-    Ok(value) => println!("Result: {}", value),   // ✅ Success
-    Err(error) => println!("Error: {}", error),   // ❌ Failure
-}
-```
-
-You **must** handle both cases. Rust won't let you ignore an error.
-
-#### 5. `?` Operator — "The lazy shortcut"
+`?` is the lazy shortcut inside functions that already return `Result`:
 
 ```rust
 pub fn read_file(file_path: &str) -> Result<String, std::io::Error> {
-    let content = std::fs::read_to_string(file_path)?;  // ← The magic one-liner
+    let content = std::fs::read_to_string(file_path)?;   // early-return on Err
     Ok(content)
 }
 ```
 
-The `?` operator does two things:
-- ✅ `Ok(value)` → gives you the value, keeps going
-- ❌ `Err(e)` → returns the error immediately
+| Outcome | What `?` does |
+|---|---|
+| `Ok(value)` | Unwraps the value, keeps going |
+| `Err(e)` | Returns the error immediately from the current function |
 
-**Without `?`** (5 lines):
+Without `?` (5 lines):
+
 ```rust
 let content = match std::fs::read_to_string(file_path) {
-    Ok(v) => v,
+    Ok(v)  => v,
     Err(e) => return Err(e),
 };
 ```
 
-**With `?`** (1 line):
+With `?` (1 line):
+
 ```rust
 let content = std::fs::read_to_string(file_path)?;
 ```
 
-Same behavior. Fewer words.
+[`execute_error_handling_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/src/error_handling.rs)
 
 ---
 
-## Part 4: Calculator Project
+## 2.4 Calculator Project
 
-The [`project_calculator.rs`](file:///home/nvision/Workspace/Code/Source/Pri/Courses/Udacity/Intro2Rust/chapter2/src/project_calculator.rs) module puts generics and traits together in a real project.
+The [`project.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/src/project.rs) module ties Generics + Traits + Error Handling together in one small program.
 
-### What It Does
-
-It defines a `Calculator` struct and a `Display` trait, then uses generics to make the calculator work with `i32`, `f32`, and any other numeric type that implements the required traits.
-
-### Key Code
+### The `Operation` enum
 
 ```rust
-// Calculator struct — stores values
-pub struct Calculator {
-    values: Vec<f64>,
-}
-
-// Display trait — a shared contract for showing results
-pub trait Display {
-    fn display(&self, label: &str, value: f64);
-}
-
-// Implement Display for different output types
-impl Display for String { ... }
-impl Display for () { ... }
-
-// Generic function — works with ANY Display type
-pub fn calculator<T: Display>(
-    a: i32, b: i32, c: i32, d: i32, e: i32,
-    x: i32, y: i32, z: i32, w: i32
-) { ... }
+enum Operation { Add, Subtract, Multiply, Divide }
 ```
 
-### How It All Connects
+### The generic `calculate` function
 
-| Concept | Role in the Calculator |
+```rust
+pub fn calculate<T>(op: Operation, a: T, b: T) -> Result<T, &'static str>
+where
+    T: std::ops::Add<Output = T>
+        + std::ops::Sub<Output = T>
+        + std::ops::Mul<Output = T>
+        + std::ops::Div<Output = T>
+        + PartialEq
+        + From<u8>,
+{
+    match op {
+        Operation::Add      => Ok(a + b),
+        Operation::Subtract => Ok(a - b),
+        Operation::Multiply => Ok(a * b),
+        Operation::Divide   => {
+            if b == T::from(0) { Err("Zero division is illegal!") } else { Ok(a / b) }
+        }
+    }
+}
+```
+
+| Where each concept shows up | How |
 |---|---|
-| **`Calculator` struct** | Stores the computed values |
-| **`Display` trait** | Defines how to show results (string output, console output, etc.) |
-| **Generic `<T: Display>`** | Lets the same calculator function work with any display type |
-| **`Result<T, E>`** | Handles division-by-zero and other errors in calculations |
-| **`?` operator** | Propagates errors without verbose `match` statements |
+| **Generics** | `<T>` plus the `where` clause make `calculate` work for any numeric type that supports `+ - * /`, `==`, and conversion from `0`. |
+| **Traits** | The bounds (`Add`, `Sub`, `Mul`, `Div`, `PartialEq`, `From<u8>`) are all traits the type must implement. |
+| **Error Handling** | The function returns `Result<T, &'static str>`; the divide-by-zero guard returns `Err(...)`. |
 
-The calculator takes 9 integers, performs arithmetic operations, and displays the results through any type that implements `Display` — all without rewriting the logic for each output format.
+### What the caller does
+
+```rust
+project::calculator(21, 21, 84, 42, 21, 2, 84, 2, 42);
+```
+
+Runs five operations through `calculate` and `match`es each `Result`:
+
+| # | Operation | Result |
+|---|---|---|
+| 2.4.1 | `21 + 21` | `Ok(42)` |
+| 2.4.2 | `84 - 42` | `Ok(42)` |
+| 2.4.3 | `21 * 2` | `Ok(42)` |
+| 2.4.4 | `84 / 2` | `Ok(42)` |
+| 2.4.5 | `42 / 0` | `Err("Zero division is illegal!")` |
+
+[`calculator`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/src/project.rs)
 
 ---
 
-## Part 5: Arranging Main
-
-[`main.rs`](file:///home/nvision/Workspace/Code/Source/Pri/Courses/Udacity/Intro2Rust/chapter2/src/main.rs) ties all modules together:
-
-```rust
-mod error_handling;
-mod generics;
-mod project_calculator;
-mod traits;
-
-fn main() {
-    generics::execute_generics_example();
-    traits::execute_trait_example();
-    error_handling::execute_error_handling_example();
-    println!("CHAPTER 2 PROJECT: CALCULATOR");
-    project_calculator::calculator(21, 21, 84, 42, 21, 2, 84, 2, 42);
-}
-```
-
-### Module Organization
-
-| Module | Path | What It Demonstrates |
-|---|---|---|
-| `generics` | [`src/generics.rs`](file:///home/nvision/Workspace/Code/Source/Pri/Courses/Udacity/Intro2Rust/chapter2/src/generics.rs) | `largest<T>` — one function for any comparable type |
-| `traits` | [`src/traits.rs`](file:///home/nvision/Workspace/Code/Source/Pri/Courses/Udacity/Intro2Rust/chapter2/src/traits.rs) | `Animal` (no default) + `GreetingDefault` (with default) |
-| `error_handling` | [`src/error_handling.rs`](file:///home/nvision/Workspace/Code/Source/Pri/Courses/Udacity/Intro2Rust/chapter2/src/error_handling.rs) | `unwrap()` / `expect()` / `Result` / `match` / `?` |
-| `project_calculator` | [`src/project_calculator.rs`](file:///home/nvision/Workspace/Code/Source/Pri/Courses/Udacity/Intro2Rust/chapter2/src/project_calculator.rs) | All three concepts in a real project |
-| `main` | [`src/main.rs`](file:///home/nvision/Workspace/Code/Source/Pri/Courses/Udacity/Intro2Rust/chapter2/src/main.rs) | Imports all modules and runs them |
-
-### Final Summary
+## Final Summary
 
 | Concept | What It Solves | In One Line |
 |---|---|---|
 | **Generics** | Same logic for many types | Write once, use everywhere |
-| **Traits** | Shared interface across types | Same rules, different flavors |
-| **Error Handling** | Survive when things go wrong | Plan for success AND failure |
+| **Traits** | Shared interface across types | Same rules, different flavours |
+| **Error Handling** | Survive when things go wrong | Errors are values, not crashes |
+| **Project** | All three working together | A tiny generic, trait-bounded, error-aware calculator |

@@ -1,16 +1,12 @@
-struct Book<'author> {
-    title: String,
-    author: &'author str,
-}
-
-fn print_book_details(book: &Book) {
-    println!("Book Name: {}", book.title);
-    println!("Author Name: {}", book.author);
-}
+mod borrowing;
+mod lifetimes;
+mod memory_management;
 
 fn main() {
-    let title: String = String::from("Artificial Intelligence A Modern Approach");
-    let author: &str = "Stuart Russel & Peter Norvig";
-    let book: Book = Book { title, author };
-    print_book_details(&book);
+    println!("-------------------------");
+    println!("Intro to Rust | Chapter 1");
+    println!("-------------------------\n");
+    memory_management::execute_memory_management_example();
+    borrowing::execute_borrowing_example();
+    lifetimes::execute_lifetimes_example();
 }
