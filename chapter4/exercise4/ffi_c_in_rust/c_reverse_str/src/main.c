@@ -1,5 +1,3 @@
-#include <string.h>
-
 char *reverse_string(char* s, int len) {
       int i, j;
       char temp;
