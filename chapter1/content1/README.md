@@ -12,9 +12,9 @@ The code lives in three modules, run them all with `cargo run`:
 
 | Chapter | Module | Topic |
 |---|---|---|
-| 1.1 | [`src/memory_management.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/src/memory_management.rs) | Ownership |
-| 1.2 | [`src/borrowing.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/src/borrowing.rs) | Borrowing |
-| 1.3 | [`src/lifetimes.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/src/lifetimes.rs) | Lifetime |
+| 1.1 | [`src/memory_management.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/content1/src/memory_management.rs) | Ownership |
+| 1.2 | [`src/borrowing.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/content1/src/borrowing.rs) | Borrowing |
+| 1.3 | [`src/lifetimes.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/content1/src/lifetimes.rs) | Lifetime |
 
 > **Failing examples**: compile-time errors can't be observed at runtime, so each `_fail` example **simulates** the bad state and returns a `Result` handled with `match`. In real Rust the `Err` branch is unreachable — the compiler rejects the code first.
 
@@ -38,7 +38,7 @@ So in Rust you write this and **never** call `free`:
 let array = vec![0; 10]; // dropped automatically at end of scope
 ```
 
-[`memory_management_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/src/memory_management.rs)
+[`memory_management_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/content1/src/memory_management.rs)
 
 ### 1.1.2 Variable Interaction (Move, Copy, Clone)
 
@@ -76,7 +76,7 @@ let some_other_string = some_string.clone();
 println!("{}", some_string);   // works — independent deep copy
 ```
 
-[`move_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/src/memory_management.rs), [`copy_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/src/memory_management.rs), [`clone_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/src/memory_management.rs)
+[`move_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/content1/src/memory_management.rs), [`copy_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/content1/src/memory_management.rs), [`clone_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/content1/src/memory_management.rs)
 
 ---
 
@@ -97,7 +97,7 @@ let some_other_string = &some_string;       // read-only reference
 println!("{}", some_string);                  // original still valid
 ```
 
-[`immutable_borrow_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/src/borrowing.rs), [`borrow_rule_one_fail_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/src/borrowing.rs), [`borrow_rule_two_fail_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/src/borrowing.rs)
+[`immutable_borrow_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/content1/src/borrowing.rs), [`borrow_rule_one_fail_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/content1/src/borrowing.rs), [`borrow_rule_two_fail_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/content1/src/borrowing.rs)
 
 ### 1.2.2 Mutability
 
@@ -124,7 +124,7 @@ let some_other_string = &mut some_string;
 *some_other_string = String::from("Bye, World!");
 ```
 
-[`immutable_variable_fail_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/src/borrowing.rs), [`mutable_variable_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/src/borrowing.rs), [`mutable_borrow_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/src/borrowing.rs)
+[`immutable_variable_fail_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/content1/src/borrowing.rs), [`mutable_variable_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/content1/src/borrowing.rs), [`mutable_borrow_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/content1/src/borrowing.rs)
 
 ### 1.2.3 Scope
 
@@ -139,7 +139,7 @@ let mut s = String::from("Hello");
 let r2 = &mut s;        // ok: previous borrow has ended
 ```
 
-[`scope_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/src/borrowing.rs)
+[`scope_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/content1/src/borrowing.rs)
 
 ---
 
@@ -221,7 +221,7 @@ let str2 = "123";                // &'static str
 res = longest(str1, str2);       // ok — 'static
 ```
 
-[`dangling_reference_fail_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/src/lifetimes.rs), [`lifetime_elision_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/src/lifetimes.rs), [`missing_lifetime_fail_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/src/lifetimes.rs), [`explicit_lifetime_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/src/lifetimes.rs), [`lifetime_in_struct_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/src/lifetimes.rs), [`static_lifetime_fail_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/src/lifetimes.rs), [`static_lifetime_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/src/lifetimes.rs)
+[`dangling_reference_fail_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/content1/src/lifetimes.rs), [`lifetime_elision_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/content1/src/lifetimes.rs), [`missing_lifetime_fail_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/content1/src/lifetimes.rs), [`explicit_lifetime_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/content1/src/lifetimes.rs), [`lifetime_in_struct_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/content1/src/lifetimes.rs), [`static_lifetime_fail_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/content1/src/lifetimes.rs), [`static_lifetime_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter1/content1/src/lifetimes.rs)
 
 ---
 

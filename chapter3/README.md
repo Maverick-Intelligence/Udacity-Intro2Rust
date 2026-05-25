@@ -22,7 +22,7 @@ shape_calculator/
 
 ## 3.1 The Library
 
-### Library crate — [`lib.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter3/shape_calculator/src/lib.rs)
+### Library crate — [`lib.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter3/exercise3/shape_calculator/src/lib.rs)
 
 ```rust
 pub mod shapes;
@@ -31,7 +31,7 @@ pub fn get_shapes() { ... }
 
 A **library** has no `main`. Other code uses it by name. `pub` = "outside world can see this."
 
-### Module system — [`shapes/mod.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter3/shape_calculator/src/shapes/mod.rs)
+### Module system — [`shapes/mod.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter3/exercise3/shape_calculator/src/shapes/mod.rs)
 
 ```rust
 pub mod circle;
@@ -48,7 +48,7 @@ A folder is a module when it has a `mod.rs`. Each `.rs` inside is a sub-module.
 | `pub mod x;` | "…and let outsiders see it." |
 | `use super::shape::area;` | "Go up one folder and grab `area` from `shape`." |
 
-### Traits + Generics — [`shape.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter3/shape_calculator/src/shapes/shape.rs)
+### Traits + Generics — [`shape.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter3/exercise3/shape_calculator/src/shapes/shape.rs)
 
 ```rust
 pub trait AreaFor {
@@ -71,7 +71,7 @@ pub fn area<T: AreaFor>(t: u8, num: T) -> f32 { num.area_for(t) }
 
 So `area(t, num)` is **one function** that works for two completely different `num` types — Rust picks the matching `impl` at compile time.
 
-### Shape structs — [`circle.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter3/shape_calculator/src/shapes/circle.rs) · [`rectangle.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter3/shape_calculator/src/shapes/rectangle.rs) · [`square.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter3/shape_calculator/src/shapes/square.rs)
+### Shape structs — [`circle.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter3/exercise3/shape_calculator/src/shapes/circle.rs) · [`rectangle.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter3/exercise3/shape_calculator/src/shapes/rectangle.rs) · [`square.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter3/exercise3/shape_calculator/src/shapes/square.rs)
 
 All three follow the same pattern:
 
@@ -116,7 +116,7 @@ The shape's `t` (1, 2, 3) is just a private tag so `area(t, num)` picks the righ
 
 ---
 
-## 3.2 Examples — [`examples/shape_calculator.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter3/shape_calculator/examples/shape_calculator.rs)
+## 3.2 Examples — [`examples/shape_calculator.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter3/exercise3/shape_calculator/examples/shape_calculator.rs)
 
 Anything in `examples/` is a runnable demo that uses the library from the outside, like real users would.
 
@@ -126,7 +126,7 @@ cargo run --example shape_calculator
 
 ---
 
-## 3.3 Tests — [`tests/test.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter3/shape_calculator/tests/test.rs)
+## 3.3 Tests — [`tests/test.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter3/exercise3/shape_calculator/tests/test.rs)
 
 Anything in `tests/` is an **integration test** — a separate binary that imports the library as `shape_calculator::…`. It can only see `pub` things.
 
@@ -152,7 +152,7 @@ cargo test -- --show-output      # also show println! output
 
 ---
 
-## 3.4 Benchmarks — [`benches/my_bench.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter3/shape_calculator/benches/my_bench.rs)
+## 3.4 Benchmarks — [`benches/my_bench.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter3/exercise3/shape_calculator/benches/my_bench.rs)
 
 `benches/` measures how fast code runs, using the **Criterion** crate.
 

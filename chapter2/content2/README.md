@@ -12,10 +12,10 @@ The code lives in four modules, run them all with `cargo run`:
 
 | Chapter | Module | Topic |
 |---|---|---|
-| 2.1 | [`src/generics.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/src/generics.rs) | Generics |
-| 2.2 | [`src/traits.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/src/traits.rs) | Traits |
-| 2.3 | [`src/error_handling.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/src/error_handling.rs) | Error Handling |
-| 2.4 | [`src/project.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/src/project.rs) | Calculator Project (all three combined) |
+| 2.1 | [`src/generics.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/content2/src/generics.rs) | Generics |
+| 2.2 | [`src/traits.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/content2/src/traits.rs) | Traits |
+| 2.3 | [`src/error_handling.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/content2/src/error_handling.rs) | Error Handling |
+| 2.4 | [`src/project.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/exercise2/calculator/src/calculator.rs) | Calculator Project (all three combined) |
 
 ---
 
@@ -64,7 +64,7 @@ pub fn largest<T: std::cmp::PartialOrd>(list: &[T]) -> &T {
 | `f32` | Yes | Yes |
 | `String` | No | Compile-time error |
 
-[`execute_generics_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/src/generics.rs)
+[`execute_generics_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/content2/src/generics.rs)
 
 ---
 
@@ -115,7 +115,7 @@ impl GreetingDefault for GreetingGerman {
 | `GreetingEnglish` | Yes | `"Hello everyone!"` (from the trait) |
 | `GreetingGerman` | No (overrides) | `"Moin!"` (its own value) |
 
-[`execute_trait_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/src/traits.rs)
+[`execute_trait_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/content2/src/traits.rs)
 
 ---
 
@@ -195,13 +195,13 @@ With `?` (1 line):
 let content = std::fs::read_to_string(file_path)?;
 ```
 
-[`execute_error_handling_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/src/error_handling.rs)
+[`execute_error_handling_example`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/content2/src/error_handling.rs)
 
 ---
 
 ## 2.4 Calculator Project
 
-The [`project.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/src/project.rs) module ties Generics + Traits + Error Handling together in one small program.
+The [`project.rs`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/exercise2/calculator/src/calculator.rs) module ties Generics + Traits + Error Handling together in one small program.
 
 ### The `Operation` enum
 
@@ -254,7 +254,7 @@ Runs five operations through `calculate` and `match`es each `Result`:
 | 2.4.4 | `84 / 2` | `Ok(42)` |
 | 2.4.5 | `42 / 0` | `Err("Zero division is illegal!")` |
 
-[`calculator`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/src/project.rs)
+[`calculator`](https://github.com/Maverick-Intelligence/Udacity-Intro2Rust/blob/trunk/chapter2/exercise2/calculator/src/calculator.rs)
 
 ---
 
