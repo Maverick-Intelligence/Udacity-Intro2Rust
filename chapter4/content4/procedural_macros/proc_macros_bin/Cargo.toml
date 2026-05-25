@@ -1,0 +1,8 @@
+[package]
+name = "proc_macros_bin"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+proc_macros_lib = { version = "0.1.0", path = "../proc_macros_lib" }
+syn = { version = "2.0.117", features = ["full"] }

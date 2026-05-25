@@ -1,0 +1,3 @@
+[workspace]
+resolver = "2"
+members = ["proc_macros_bin", "proc_macros_lib"]
