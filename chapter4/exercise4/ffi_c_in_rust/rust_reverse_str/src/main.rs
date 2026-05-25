@@ -7,7 +7,7 @@ unsafe extern "C" {
 
 fn main() {
     let rust_string = String::from("Rust FFI Example in Chapter 4");
-    let mut c_string = CString::new(rust_string).expect("CString::new failed!");
+    let c_string = CString::new(rust_string).expect("CString::new failed!");
 
     let length = c_string.as_bytes().len();
     let c_ptr = c_string.into_raw();
