@@ -10,7 +10,7 @@ pub fn some_function() {
 }
 
 pub fn demo() {
-    println!("=== 3. Exporting Macros ===");
+    println!("=== 4.1.3 Exporting Macros ===");
 
     crate::my_macro!();
 

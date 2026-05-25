@@ -11,7 +11,7 @@ mod inner {
 }
 
 pub fn demo() {
-    println!("=== 4. Scoping Quirks ===");
+    println!("=== 4.1.4 Scoping Quirks ===");
 
     inner::test();
 

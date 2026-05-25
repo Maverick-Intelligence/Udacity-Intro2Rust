@@ -5,7 +5,7 @@ macro_rules! example {
 }
 
 pub fn demo() {
-    println!("=== 2. Metavariable Expressions ===");
+    println!("=== 4.1.2 Metavariable Expressions ===");
 
     example!(my_var);
     example!(SomeType);

@@ -28,7 +28,7 @@ macro_rules! count_tts {
 }
 
 pub fn demo() {
-    println!("=== 5. Macro Patterns ===");
+    println!("=== 4.1.5 Macro Patterns ===");
 
     println!("-- Match All --");
     match_all!(if let Some(x) = Some(5) {});

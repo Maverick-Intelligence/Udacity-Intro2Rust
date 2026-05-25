@@ -1,7 +1,7 @@
 mod calculator;
 
 fn main() {
-    println!("=== Chapter 2. Project: Calculator ===\n");
+    println!("=== Chapter 2 Exercise: Calculator ===\n");
 
     let add_a = 21.0;
     let add_b = 21.0;
@@ -23,7 +23,7 @@ fn main() {
     let division_with_zero =
         calculator::calculate(calculator::Operation::Divide, div_wz_a, DIV_WZ_B);
 
-    println!("- 2.1. Addition -");
+    println!("- 1. Addition -");
     match addition {
         Ok(result) => println!(
             "Generic `calculate(Add, {}, {})` returned Ok({}).",
@@ -36,7 +36,7 @@ fn main() {
     }
     println!("--------------------------------------------------\n\n");
 
-    println!("- 2.2. Subtraction -");
+    println!("- 2. Subtraction -");
     match subtraction {
         Ok(result) => println!(
             "Generic `calculate(Subtract, {}, {})` returned Ok({}).",
@@ -49,7 +49,7 @@ fn main() {
     }
     println!("--------------------------------------------------\n\n");
 
-    println!("- 2.3. Multiplication -");
+    println!("- 3. Multiplication -");
     match multiplication {
         Ok(result) => println!(
             "Generic `calculate(Multiply, {}, {})` returned Ok({}).",
@@ -62,7 +62,7 @@ fn main() {
     }
     println!("--------------------------------------------------\n\n");
 
-    println!("- 2.4. Division (Non-Zero) -");
+    println!("- 4. Division (Non-Zero) -");
     match division_non_zero {
         Ok(result) => println!(
             "Generic `calculate(Divide, {}, {})` returned Ok({}).",
@@ -75,7 +75,7 @@ fn main() {
     }
     println!("--------------------------------------------------\n\n");
 
-    println!("- 2.5. Division (Zero) -");
+    println!("- 5. Division (Zero) -");
     match division_with_zero {
         Ok(result) => println!(
             "Generic `calculate(Divide, {}, {})` returned Ok({}).",

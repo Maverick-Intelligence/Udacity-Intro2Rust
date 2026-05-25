@@ -19,7 +19,7 @@ macro_rules! my_vec {
 }
 
 pub fn demo() {
-    println!("=== 1. Basics ===");
+    println!("=== 4.1.1 Basics ===");
 
     let two = one!() + one!();
     println!("one!() + one!() = {}", two);
